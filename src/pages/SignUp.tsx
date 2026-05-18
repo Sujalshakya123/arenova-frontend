@@ -1,13 +1,11 @@
 import React from "react";
-import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { FiLogIn } from "react-icons/fi";
-
+import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 import logo from "../assets/Logo.png";
 import leftcover from "../assets/login-left.png";
 
-const Login = () => {
+const SignUp = () => {
   return (
     <>
       <div className="flex ">
@@ -41,11 +39,21 @@ const Login = () => {
 
         <div className="w-1/2 bg-white flex items-center justify-center ">
           <div className="w-full max-w-[400px] py-8">
-            <h2 className="font-bold text-2xl">Welcome back</h2>
-            <p className="text-sm text-gray-500 mt-1 mb-4 ">
-              Please enter your credentials to access your account.
+            <h2 className="font-bold text-2xl">Create Account</h2>
+            <p className="text-sm text-gray-500 mt-1 mb-4">
+              Start your professional journey today.
             </p>
 
+            <div>
+              <label className="font-semibold text-black mb-1 block">
+                Username
+              </label>
+              <input
+                type="text"
+                placeholder="Enter your username"
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
             <div>
               <label className="font-semibold text-black mb-1 block">
                 Email Address
@@ -56,38 +64,50 @@ const Login = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <div>
-              <div className="flex justify-between items-center">
-                <label className="font-semibold text-black mb-1 block">
+
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1">
+                <label className="block font-semibold text-gray-700 mb-1">
                   Password
                 </label>
-                <span className="font-semibold text-blue-600 cursor-pointer hover:underline">
-                  Forgot Password?
-                </span>
+                <input
+                  type="password"
+                  placeholder="Enter your password"
+                  className="w-full h-[42px] border border-gray-300 rounded-lg px-3 py-2 text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
               </div>
-              <input
-                type="password"
-                placeholder="Enter your password"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="flex-1">
+                <label className="block font-semibold text-gray-700 mb-1">
+                  Primary Game
+                </label>
+                <select className="w-full h-[42px] border border-gray-300 rounded-lg px-3 py-2 text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">Select Game</option>
+                  <option>PUBG</option>
+                  <option>Free Fire</option>
+                  <option>Valorant</option>
+                </select>
+              </div>
             </div>
-
             <div className="flex items-center gap-2 mb-5">
-              <input type="checkbox" className=" w-4 h-4 " />
-              <p className="text-sm text-gray-500">Remember me</p>
+              <input type="checkbox" className="w-4 h-4" />
+              <p className="text-sm text-gray-500">
+                I agree to the{" "}
+                <span className="text-blue-600 cursor-pointer">
+                  Terms of Service and Privacy Policy
+                </span>
+              </p>
             </div>
-
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition flex items-center justify-center gap-2">
-              Login <FiLogIn />
+            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition">
+              Create Account
             </button>
             <p className="text-center text-sm text-gray-500 mt-4">
-              Don't have an account?{" "}
-              <span className="text-blue-600 cursor-pointer font-semibold hover:underline">
-                Sign up for free
+              Already have an account?{" "}
+              <span className="text-blue-600 cursor-pointer font-medium">
+                Log in
               </span>
             </p>
 
-            <div className="flex items-center gap-3 my-5 mt-6 mb-8">
+            <div className="flex items-center gap-3 my-5">
               <div className="flex-1 h-[1px] bg-gray-300" />
               <span className="font-semimedium text-gray-500 ">
                 OR CONTINUE WITH
@@ -112,4 +132,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignUp;
