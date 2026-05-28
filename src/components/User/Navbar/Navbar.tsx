@@ -16,7 +16,7 @@ const Navbar = () => {
       </div>
 
       <div>
-        <ul className="flex gap-[60px] font-semibold text-[18px]">
+        <ul className="flex gap-[60px] font-semibold text-[18px] cursor-pointer">
           {navLinks.map((link) => (
             <li key={link.id}>{link.name}</li>
           ))}
@@ -24,10 +24,10 @@ const Navbar = () => {
       </div>
 
       <div className="flex gap-[20px]">
-        <button className="bg-blue-500 px-8 py-2 rounded-lg text-white">
-          Sign In
+        <button className="bg-blue-600 hover:bg-blue-700 px-8 py-2 rounded-lg text-white cursor-pointer font-medium">
+          Sign Up
         </button>
-        <button className="border border-blue-500 px-8 py-2 rounded-lg text-blue-500">
+        <button className="border border-blue-700 hover:bg-blue-700 hover:text-white px-8 py-2 rounded-lg text-blue-500 cursor-pointer font-medium">
           Login
         </button>
       </div>

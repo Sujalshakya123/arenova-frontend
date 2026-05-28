@@ -1,11 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaFacebook } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 import logo from "../assets/Logo.png";
 import leftcover from "../assets/login-left.png";
+import { useNavigate } from "react-router";
+import api from "../api/axios";
+
+type RegisterForm = {
+  username: string;
+  email: string;
+  password: string;
+};
 
 const SignUp = () => {
+  const navigate = useNavigate();
+  const [form, setForm] = useState<RegisterForm>({
+    username: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    try {
+      await api.post("/auth/register", form);
+
+      alert("Registration successful");
+
+      navigate("/login");
+    } catch (error) {
+      console.error(error);
+
+      alert("Registration failed");
+    }
+  };
+
   return (
     <>
       <div className="flex ">
@@ -16,7 +54,7 @@ const SignUp = () => {
           />
           <div className="absolute inset-0 bg-gradient-to-l from-[#364A80]/35 to-[#0B0F1A]" />
 
-          <div className="absolute inset-0 flex flex-col justify-center items-center  text-white z-10">
+          <div className="absolute inset-0 flex flex-col justify-center items-center  text-white z-10 h-[80%] ">
             <img src={logo} alt="Logo" className="w-[150px] h-[150px]" />
             <h2 className="text-3xl font-bold tracking-widest mt-2">ARENOVA</h2>
             <p className="text-gray-300">Ready for the ultimate fight?</p>
@@ -37,8 +75,11 @@ const SignUp = () => {
           </div>
         </div>
 
-        <div className="w-1/2 bg-white flex items-center justify-center ">
-          <div className="w-full max-w-[400px] py-8">
+        <form
+          onSubmit={handleSubmit}
+          className="w-1/2 bg-white flex items-center justify-center "
+        >
+          <div className="w-full max-w-[400px] py-8 h-[60%]">
             <h2 className="font-bold text-2xl">Create Account</h2>
             <p className="text-sm text-gray-500 mt-1 mb-4">
               Start your professional journey today.
@@ -51,6 +92,9 @@ const SignUp = () => {
               <input
                 type="text"
                 placeholder="Enter your username"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -61,6 +105,9 @@ const SignUp = () => {
               <input
                 type="email"
                 placeholder="Enter your email"
+                name="email"
+                value={form.email}
+                onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -73,6 +120,9 @@ const SignUp = () => {
                 <input
                   type="password"
                   placeholder="Enter your password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleChange}
                   className="w-full h-[42px] border border-gray-300 rounded-lg px-3 py-2 text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -97,7 +147,10 @@ const SignUp = () => {
                 </span>
               </p>
             </div>
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition">
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition"
+            >
               Create Account
             </button>
             <p className="text-center text-sm text-gray-500 mt-4">
@@ -126,7 +179,7 @@ const SignUp = () => {
               </button>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </>
   );

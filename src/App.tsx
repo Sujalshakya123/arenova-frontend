@@ -1,13 +1,16 @@
 import { Route, Routes } from "react-router";
-import Home from "./pages/Game";
+import Home from "./pages/BrowseGames";
 import Navbar from "./components/User/Navbar/Navbar";
 import UserLayout from "./layouts/UserLayout";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import SignUp from "./pages/SignUp";
-import Tournament from "./pages/Tournament";
 import ListUsers from "./pages/ListUsers";
 import UserForm from "./pages/UserForm";
+import BrowseGames from "./pages/BrowseGames";
+import FeaturedTournament from "./pages/FeaturedTournament";
+import Sidebar from "./components/Sidebar";
+import Tournaments from "./pages/Tournaments";
 
 function App() {
   return (
@@ -19,8 +22,10 @@ function App() {
         <Route path="/userform" element={<UserForm />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/tournament" element={<Tournament />} />
+        <Route path="/browse-games" element={<BrowseGames />} />
+        <Route path="/featured-tournament" element={<FeaturedTournament />} />
+        <Route path="/sidebar" element={<Sidebar />} />
+        <Route path="/tournaments" element={<Tournaments />} />
       </Routes>
     </>
   );
