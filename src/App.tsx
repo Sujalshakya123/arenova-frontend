@@ -11,21 +11,28 @@ import BrowseGames from "./pages/BrowseGames";
 import FeaturedTournament from "./pages/FeaturedTournament";
 import Sidebar from "./components/Sidebar";
 import Tournaments from "./pages/Tournaments";
+import Profile from "./pages/profile";
 
 function App() {
   return (
     <>
       {/* User */}
       <Routes>
-        <Route path="/" element={<UserLayout />} />
-        <Route path="/list-users" element={<ListUsers />} />
-        <Route path="/userform" element={<UserForm />} />
+        {/* Pages WITH Navbar (nested under UserLayout) */}
+        <Route path="/" element={<UserLayout />}>
+          {/* <Route path="" element={<BrowseGames />} /> */}
+          <Route path="browse-games" element={<BrowseGames />} />
+          <Route path="featured-tournament" element={<FeaturedTournament />} />
+          <Route path="contacts" element={<Contact />} />
+          <Route path="list-users" element={<ListUsers />} />
+          <Route path="userform" element={<UserForm />} />
+        </Route>
+
+        {/* Pages WITHOUT Navbar */}
+        <Route path="tournaments" element={<Tournaments />} />
+        <Route path="profile" element={<Profile />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/browse-games" element={<BrowseGames />} />
-        <Route path="/featured-tournament" element={<FeaturedTournament />} />
-        <Route path="/sidebar" element={<Sidebar />} />
-        <Route path="/tournaments" element={<Tournaments />} />
       </Routes>
     </>
   );

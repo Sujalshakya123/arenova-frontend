@@ -5,6 +5,7 @@ import mobileLegends from "../assets/MLBB.png";
 import valorant from "../assets/VALORANT.png";
 import r6 from "../assets/R6.png";
 import callOfDuty from "../assets/CODM.png";
+import { useNavigate } from "react-router";
 
 const BrowseGames = () => {
   return (

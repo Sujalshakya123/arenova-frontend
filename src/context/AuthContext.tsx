@@ -5,9 +5,15 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { jwtDecode } from "jwt-decode";
+
+type User = {
+  sub: string;
+};
 
 type AuthContextType = {
   token: string | null;
+  user: User | null;
   isAuthenticated: boolean;
   login: (jwtToken: string) => void;
   logout: () => void;
@@ -24,6 +30,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.getItem("token"),
   );
 
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
 
   useEffect(() => {
@@ -31,10 +38,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       localStorage.setItem("token", token);
 
       setIsAuthenticated(true);
+
+      try {
+        const decoded = jwtDecode<User>(token);
+        setUser(decoded);
+      } catch {
+        setUser(null);
+      }
     } else {
       localStorage.removeItem("token");
 
       setIsAuthenticated(false);
+      setUser(null);
     }
   }, [token]);
 
@@ -50,6 +65,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     <AuthContext.Provider
       value={{
         token,
+        user,
         isAuthenticated,
         login,
         logout,
