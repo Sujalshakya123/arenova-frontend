@@ -1,25 +1,23 @@
 import React from "react";
 
 import { useState } from "react";
-import {
-  FaUser,
-  FaGamepad,
-  FaPhone,
-  FaFileAlt,
-  FaTag,
-  FaCamera,
-  FaTrophy,
-  FaEdit,
-} from "react-icons/fa";
-import { useAuth } from "../context/AuthContext";
+import { FaDiscord, FaPlus, FaFacebook } from "react-icons/fa";
 import Navbar from "../components/User/Navbar/Navbar";
 import Footer from "../components/User/Navbar/Footer";
 
+import tourhero from "../assets/download.jpg";
+import { IoMdArrowRoundBack } from "react-icons/io";
+import { PiPlusCircleBold } from "react-icons/pi";
+import { NavLink } from "react-router";
+import valo from "../assets/Game-icon/valorant-50.png";
+import ff from "../assets/Game-icon/FF.png";
+import Profilesidebar from "../components/User/Profilesidebar";
+
 const Profile = () => {
-  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
   const [bio, setBio] = useState("");
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [username, setUsername] = useState("");
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,272 +28,236 @@ const Profile = () => {
     }
   };
 
-  const tournamentHistory = [
-    {
-      id: 1,
-      name: "Nepal PUBG Pro League",
-      game: "PUBG Mobile",
-      date: "29 April, 2026",
-      result: "Top 5",
-      prize: "Rs. 2,000",
-    },
-    {
-      id: 2,
-      name: "FreeFire World Series",
-      game: "Free Fire",
-      date: "15 March, 2026",
-      result: "Winner",
-      prize: "Rs. 20,000",
-    },
-    {
-      id: 3,
-      name: "Valorant Champions Tour",
-      game: "Valorant",
-      date: "1 Feb, 2026",
-      result: "Top 10",
-      prize: "Rs. 500",
-    },
-  ];
-
   return (
     <>
       <div>
-        <Navbar />
-      </div>
-      <div className="min-h-screen bg-[#0B0F1A] text-white px-[80px] py-10">
-        {/* Header */}
-        <div className="mb-2">
-          <p className="text-yellow-400 text-xs tracking-widest uppercase">
-            Account
-          </p>
-          <h1 className="text-3xl font-bold mt-1">Profile Settings</h1>
-          <p className="text-gray-400 text-sm mt-1">
-            Manage your gaming identity, contact details, and how other players
-            see you.
-          </p>
-        </div>
-        <hr className="border-gray-700 mb-8" />
-
-        {/* Tabs */}
-        <div className="flex gap-6 mb-8 border-b border-gray-700">
-          <button
-            onClick={() => setActiveTab("profile")}
-            className={`pb-3 text-sm font-semibold transition ${activeTab === "profile" ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400 hover:text-white"}`}
-          >
-            Profile
-          </button>
-          <button
-            onClick={() => setActiveTab("history")}
-            className={`pb-3 text-sm font-semibold transition ${activeTab === "history" ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400 hover:text-white"}`}
-          >
-            Tournament History
-          </button>
-          <button
-            onClick={() => setActiveTab("security")}
-            className={`pb-3 text-sm font-semibold transition ${activeTab === "security" ? "text-yellow-400 border-b-2 border-yellow-400" : "text-gray-400 hover:text-white"}`}
-          >
-            Security
-          </button>
+        <div className=" bg-gradient-to-r from-black/75 via-black/40 to-transparent">
+          <img
+            src={tourhero}
+            className="absolute h-[88px] w-full object-cover opacity-85"
+          />
+          <div className="relative  flex flex-col">
+            <Navbar />
+          </div>
         </div>
 
-        {/* Profile Tab */}
-        {activeTab === "profile" && (
-          <div className="flex flex-col gap-6">
-            {/* Avatar Card */}
-            <div className="bg-[#111827] rounded-xl p-6 flex items-center gap-6">
-              <div className="relative">
-                {profileImage ? (
-                  <img
-                    src={profileImage}
-                    className="w-20 h-20 rounded-xl object-cover"
-                  />
-                ) : (
-                  <div className="w-20 h-20 rounded-xl bg-yellow-500 flex items-center justify-center text-black text-3xl font-bold">
-                    {user?.sub?.[0]?.toUpperCase() ?? "U"}
-                  </div>
-                )}
-                {/* Camera overlay */}
-                <label className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl opacity-0 hover:opacity-100 cursor-pointer transition">
-                  <FaCamera size={20} />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={handleImageChange}
-                  />
-                </label>
-              </div>
+        <div className="flex min-h-screen">
+          {/* Sidebar */}
+          <Profilesidebar />
+
+          <div className="flex-1 bg-gray-100 px-6 py-8">
+            {/* Header */}
+            <div className="flex justify-between items-start mb-6">
+              <NavLink to="/">
+                <div className="cursor-pointer">
+                  <IoMdArrowRoundBack size={24} />
+                </div>
+              </NavLink>
               <div>
-                {/* <p className="font-bold text-lg">{user?.name ?? user?.sub}</p> */}
-                <p className="text-gray-400 text-sm">{user?.sub}</p>
-                <p className="text-xs text-gray-500 mt-1">
-                  Click the avatar to change your profile picture
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Account Settings
+                </h1>
+                <p className="text-gray-500 text-sm mt-1">
+                  Manage your professional athlete profile and display
+                  preferences.
                 </p>
+              </div>
+              <div className="flex gap-3">
+                <button className="border border-gray-400 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition cursor-pointer">
+                  Discard Changes
+                </button>
+                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition cursor-pointer">
+                  Save Changes
+                </button>
               </div>
             </div>
 
-            {/* Public Details */}
-            <div className="bg-[#111827] rounded-xl p-6">
-              <h2 className="font-semibold text-base mb-6">Public details</h2>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="flex items-center gap-2 text-xs text-gray-400 uppercase tracking-widest mb-2">
-                    <FaUser size={12} /> Display Name
+            <div className="flex gap-6">
+              {/* Left Panel */}
+              <div className="flex flex-col gap-4 w-[200px]">
+                {/* Avatar */}
+                <div className="bg-white rounded-xl p-4 flex flex-col items-center gap-3">
+                  <div className="relative">
+                    {profileImage ? (
+                      <img
+                        src={profileImage}
+                        className="w-20 h-20 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-3xl font-bold"></div>
+                    )}
+                  </div>
+                  <div className="text-center">
+                    <p className="font-bold text-gray-900 text-sm">
+                      {username || "User"}
+                    </p>
+                  </div>
+                  <label className="w-full text-center border border-gray-400 text-gray-700 text-xs font-medium py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                    Change Photo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
                   </label>
-                  <input
-                    type="text"
-                    //   defaultValue={user?.name ?? ""}
-                    placeholder="Your display name"
-                    className="w-full bg-[#1e2535] border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-xs text-gray-400 uppercase tracking-widest mb-2">
-                    <FaTag size={12} /> Gaming Tag
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. ProPlayer#1234"
-                    className="w-full bg-[#1e2535] border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-xs text-gray-400 uppercase tracking-widest mb-2">
-                    <FaGamepad size={12} /> Favorite Game
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. PUBG Mobile"
-                    className="w-full bg-[#1e2535] border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  />
-                </div>
-
-                <div>
-                  <label className="flex items-center gap-2 text-xs text-gray-400 uppercase tracking-widest mb-2">
-                    <FaPhone size={12} /> Phone
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="+977 98XXXXXXXX"
-                    className="w-full bg-[#1e2535] border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  />
-                </div>
-
-                <div className="col-span-2">
-                  <label className="flex items-center gap-2 text-xs text-gray-400 uppercase tracking-widest mb-2">
-                    <FaFileAlt size={12} /> Bio
-                  </label>
-                  <textarea
-                    placeholder="Tell us about yourself..."
-                    maxLength={300}
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    className="w-full bg-[#1e2535] border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 resize-none h-28"
-                  />
-                  <p className="text-xs text-gray-500 text-right">
-                    {bio.length}/300
+                  <p className="text-xs text-gray-400 text-center">
+                    JPG, GIF or PNG. Max size of 800K
                   </p>
                 </div>
               </div>
-            </div>
 
-            {/* Save Button */}
-            <div className="flex justify-end">
-              <button className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded-lg transition cursor-pointer">
-                Save Changes
-              </button>
+              {/* Right Panel */}
+              <div className="flex-1 flex flex-col gap-4">
+                {/* Personal Information */}
+                <div className="bg-white rounded-xl p-6">
+                  <h2 className="font-bold text-gray-900 text-base mb-4">
+                    Personal Information
+                  </h2>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="Your username"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs text-gray-500 mb-1 block">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Enter your legal name"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-4">
+                    <label className="text-xs text-gray-500 mb-1 block">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      placeholder="you@example.com"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">
+                      Bio
+                    </label>
+                    <textarea
+                      placeholder="Brief description for your public profile..."
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      maxLength={300}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-24"
+                    />
+                  </div>
+                </div>
+
+                {/* Preferred Games */}
+                <div className="bg-white rounded-xl p-6">
+                  <div className="flex justify-between items-center mb-4">
+                    <div>
+                      <h2 className="font-bold text-gray-900 text-base">
+                        Preferred Games
+                      </h2>
+                      <p className="text-xs text-gray-500">
+                        Games you are currently active in.
+                      </p>
+                    </div>
+                    <button className="flex items-center gap-1 text-blue-600 text-sm font-medium hover:underline cursor-pointer">
+                      <FaPlus size={12} /> Add Game
+                    </button>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex items-center gap-3 border border-gray-200 rounded-lg px-2 py-3">
+                      <div className=" flex items-center justify-center text-white text-xs font-bold"></div>
+                      <img
+                        src={valo}
+                        alt="Valorant"
+                        className="w-10 h-10 rounded-lg"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          Valorant
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 border border-gray-200 rounded-lg px-4 py-3">
+                      <div className="flex items-center justify-center text-white text-xs font-bold">
+                        <img
+                          src={ff}
+                          alt="Free Fire"
+                          className="w-10 h-10 rounded-lg"
+                        />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          FreeFire
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center">
+                    <button className="flex items-center gap-1 text-gray-500 text-sm mt-4 hover:text-gray-700 cursor-pointer">
+                      <PiPlusCircleBold size={16} /> Link New Account
+                    </button>
+                  </div>
+                </div>
+
+                {/* Social Connections */}
+                <div className="bg-white rounded-xl p-6">
+                  <h2 className="font-bold text-gray-900 text-base mb-4">
+                    Social Connections
+                  </h2>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <FaDiscord size={20} className="text-indigo-500" />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            Discord
+                          </p>
+                          <p className="text-xs text-indigo-400">
+                            sujaruu#1000
+                          </p>
+                        </div>
+                      </div>
+                      <button className="border border-gray-300 text-gray-600 text-xs px-3 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer">
+                        Disconnect
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <FaFacebook size={20} className="text-blue-500" />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            Facebook
+                          </p>
+                          <p className="text-xs text-gray-400">Not connected</p>
+                        </div>
+                      </div>
+                      <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer transition">
+                        Connect Account
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
-
-        {/* Tournament History Tab */}
-        {activeTab === "history" && (
-          <div className="bg-[#111827] rounded-xl overflow-hidden">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-700 text-gray-400 text-xs uppercase">
-                  <th className="text-left px-6 py-4">Tournament</th>
-                  <th className="text-left px-6 py-4">Game</th>
-                  <th className="text-left px-6 py-4">Date</th>
-                  <th className="text-left px-6 py-4">Result</th>
-                  <th className="text-left px-6 py-4">Prize</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tournamentHistory.map((t) => (
-                  <tr
-                    key={t.id}
-                    className="border-b border-gray-700 hover:bg-[#1e2535] transition"
-                  >
-                    <td className="px-6 py-4 flex items-center gap-2">
-                      <FaTrophy className="text-yellow-400" size={14} />{" "}
-                      {t.name}
-                    </td>
-                    <td className="px-6 py-4 text-gray-400">{t.game}</td>
-                    <td className="px-6 py-4 text-gray-400">{t.date}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${t.result === "Winner" ? "bg-yellow-400 text-black" : "bg-gray-700 text-white"}`}
-                      >
-                        {t.result}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-green-400 font-semibold">
-                      {t.prize}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* Security Tab */}
-        {activeTab === "security" && (
-          <div className="bg-[#111827] rounded-xl p-6 max-w-[500px]">
-            <h2 className="font-semibold text-base mb-6">Change Password</h2>
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-widest mb-2 block">
-                  Current Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full bg-[#1e2535] border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-widest mb-2 block">
-                  New Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full bg-[#1e2535] border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-widest mb-2 block">
-                  Confirm New Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full bg-[#1e2535] border border-gray-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                />
-              </div>
-              <button className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-black font-bold px-6 py-2 rounded-lg transition cursor-pointer w-fit mt-2">
-                Update Password
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-      <div>
-        <Footer />
+        </div>
+        <div>
+          <Footer />
+        </div>
       </div>
     </>
   );

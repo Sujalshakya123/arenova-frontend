@@ -11,7 +11,9 @@ import BrowseGames from "./pages/BrowseGames";
 import FeaturedTournament from "./pages/FeaturedTournament";
 import Sidebar from "./components/Sidebar";
 import Tournaments from "./pages/Tournaments";
-import Profile from "./pages/profile";
+import Profile from "./pages/Profile";
+import Games from "./pages/Games";
+import Profilesidebar from "./components/User/Profilesidebar";
 
 function App() {
   return (
@@ -30,6 +32,9 @@ function App() {
 
         {/* Pages WITHOUT Navbar */}
         <Route path="tournaments" element={<Tournaments />} />
+        <Route path="games" element={<Games />} />
+        <Route path="profilesidebar" element={<Profilesidebar />} />
+
         <Route path="profile" element={<Profile />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
