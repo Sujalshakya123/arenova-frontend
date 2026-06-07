@@ -5,7 +5,7 @@ import { useAuth } from "../../../context/AuthContext";
 import { useState, useEffect, useRef } from "react";
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { userDTO, isAuthenticated, logout } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -68,7 +68,7 @@ const Navbar = () => {
 
       {/* Auth Section */}
       <div className="flex gap-[20px] items-center">
-        {isAuthenticated && user ? (
+        {isAuthenticated && userDTO ? (
           // ✅ Logged in — show profile
           <div className="relative" ref={dropdownRef}>
             <button
@@ -76,13 +76,13 @@ const Navbar = () => {
               className="flex items-center gap-2 cursor-pointer hover:text-blue-400 transition"
             >
               <FaUserCircle size={32} />
-              <span className="font-medium">{user?.sub}</span>
+              <span className="font-medium">{userDTO?.email}</span>
             </button>
 
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-[180px] bg-white text-black rounded-lg shadow-lg z-50 overflow-hidden">
                 <div className="px-4 py-3 border-b border-gray-200">
-                  <p className="font-semibold text-sm">{user?.sub}</p>
+                  <p className="font-semibold text-sm">{userDTO?.email}</p>
                 </div>
                 <NavLink
                   to="/profile"

@@ -8,14 +8,17 @@ import {
 import { jwtDecode } from "jwt-decode";
 
 type User = {
-  sub: string;
+  id: string;
+  username: string;
+  email: string;
+  role: string;
 };
 
 type AuthContextType = {
   token: string | null;
-  user: User | null;
+  userDTO: User | null;
   isAuthenticated: boolean;
-  login: (jwtToken: string) => void;
+  login: (jwtToken: string, userData: User) => void;
   logout: () => void;
 };
 
@@ -30,42 +33,49 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.getItem("token"),
   );
 
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  });
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
 
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token);
 
-      setIsAuthenticated(true);
-
-      try {
-        const decoded = jwtDecode<User>(token);
-        setUser(decoded);
-      } catch {
-        setUser(null);
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
       }
+      setIsAuthenticated(true);
     } else {
       localStorage.removeItem("token");
+      localStorage.removeItem("user");
 
       setIsAuthenticated(false);
       setUser(null);
     }
-  }, [token]);
+  }, [token, user]);
 
-  const login = (jwtToken: string) => {
+  const login = (jwtToken: string, userData: User) => {
     setToken(jwtToken);
+    setUser(userData);
   };
 
   const logout = () => {
     setToken(null);
+    setUser(null);
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   return (
     <AuthContext.Provider
       value={{
         token,
-        user,
+        userDTO: user,
         isAuthenticated,
         login,
         logout,

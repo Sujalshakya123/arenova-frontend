@@ -6,17 +6,26 @@ import { FiLogIn } from "react-icons/fi";
 
 import logo from "../assets/Logo.png";
 import leftcover from "../assets/login-left.png";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import api from "../api/axios";
+import { ToastContainer, toast } from "react-toastify";
 
 type LoginForm = {
   email: string;
   password: string;
 };
 
+type User = {
+  username: string;
+  email: string;
+  password: string;
+  role: string;
+};
+
 type LoginResponse = {
   token: string;
+  userDTO: User;
 };
 
 const Login = () => {
@@ -41,12 +50,22 @@ const Login = () => {
     try {
       const response = await api.post<LoginResponse>("/auth/login", form);
 
-      login(response.data.token);
+      login(response.data.token, response.data.userDTO);
 
-      navigate("/");
+      toast.success("Login Successful!", {
+        position: "top-right",
+        autoClose: 1500,
+      });
+
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
     } catch (error) {
       console.error(error);
-      alert("Invalid credentials");
+      toast.error("Invalid credentials. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
 
@@ -127,18 +146,25 @@ const Login = () => {
               <input type="checkbox" className=" w-4 h-4 " />
               <p className="text-sm text-gray-500">Remember me</p>
             </div>
-
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition flex items-center justify-center gap-2"
-            >
-              Login <FiLogIn />
-            </button>
+            <div>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded transition flex items-center justify-center gap-2"
+              >
+                Login <FiLogIn />
+              </button>
+              <ToastContainer />
+            </div>
             <p className="text-center text-sm text-gray-500 mt-4">
               Don't have an account?{" "}
-              <span className="text-blue-600 cursor-pointer font-semibold hover:underline">
-                Sign up for free
-              </span>
+              <NavLink
+                to="/sign-up"
+                className="font-semibold text-blue-600 cursor-pointer hover:underline"
+              >
+                <span className="text-blue-600 cursor-pointer font-semibold hover:underline">
+                  Sign up for free
+                </span>
+              </NavLink>
             </p>
 
             <div className="flex items-center gap-3 my-5 mt-6 mb-8">

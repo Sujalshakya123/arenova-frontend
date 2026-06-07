@@ -5,13 +5,30 @@ import {
   IoShieldOutline,
   IoTrophyOutline,
 } from "react-icons/io5";
+import { NavLink, useNavigate } from "react-router";
+import { useAuth } from "../../context/AuthContext";
 
 const Profilesidebar = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   const content = [
-    { name: "Profile", icon: <IoPersonOutline size={20} /> },
-    { name: "My Tournaments", icon: <IoTrophyOutline size={20} /> },
-    { name: "Security", icon: <IoShieldOutline size={20} /> },
-    { name: "Logout", icon: <IoLogOutOutline size={20} /> },
+    { name: "Profile", icon: <IoPersonOutline size={20} />, path: "/profile" },
+    {
+      name: "My Tournaments",
+      icon: <IoTrophyOutline size={20} />,
+      path: "/my-tournaments",
+    },
+    {
+      name: "Security",
+      icon: <IoShieldOutline size={20} />,
+      path: "/changepass",
+    },
   ];
 
   return (
@@ -27,11 +44,32 @@ const Profilesidebar = () => {
               <div>
                 <ul className=" text-gray-600 font-semibold mt-4 flex flex-col gap-3 cursor-pointer">
                   {content.map((item) => (
-                    <li className="flex items-center gap-2 text-left px-4 py-2 text-gray-300 hover:text-white hover:bg-[#1e2535] rounded-lg mb-1 transition">
-                      {item.icon}
-                      {item.name}
+                    <li key={item.name}>
+                      <NavLink
+                        to={item.path}
+                        className={({ isActive }) =>
+                          `flex items-center gap-2 px-4 py-2 rounded-lg transition font-semibold ${
+                            isActive
+                              ? "bg-[#1e2535] text-white"
+                              : "text-gray-400 hover:text-white hover:bg-[#1e2535]"
+                          }`
+                        }
+                      >
+                        {item.icon}
+                        {item.name}
+                      </NavLink>
                     </li>
                   ))}
+                  {/* Logout */}
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-semibold text-red-400 hover:text-white hover:bg-red-600 w-full text-left cursor-pointer"
+                    >
+                      <IoLogOutOutline size={20} />
+                      Logout
+                    </button>
+                  </li>
                 </ul>
               </div>
             </div>

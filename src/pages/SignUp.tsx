@@ -11,6 +11,7 @@ type RegisterForm = {
   username: string;
   email: string;
   password: string;
+  role: string;
 };
 
 const SignUp = () => {
@@ -19,12 +20,20 @@ const SignUp = () => {
     username: "",
     email: "",
     password: "",
+    role: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setForm({
+      ...form,
+      role: e.target.value,
     });
   };
 
@@ -135,6 +144,22 @@ const SignUp = () => {
                   <option>PUBG</option>
                   <option>Free Fire</option>
                   <option>Valorant</option>
+                </select>
+              </div>
+
+              <div className="flex-1">
+                <label className="block font-semibold text-gray-700 mb-1">
+                  Role
+                </label>
+                <select
+                  name="role"
+                  value={form.role}
+                  onChange={handleSelectChange}
+                  className="w-full h-[42px] border border-gray-300 rounded-lg px-3 py-2 text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Role</option>
+                  <option value="PLAYER">Player</option>
+                  <option value="ORGANIZER">Organizer</option>
                 </select>
               </div>
             </div>

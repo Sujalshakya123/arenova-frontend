@@ -14,19 +14,19 @@ import ff from "../assets/Game-icon/FF.png";
 import Profilesidebar from "../components/User/Profilesidebar";
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState("profile");
-  const [bio, setBio] = useState("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [username, setUsername] = useState("");
+  // const [activeTab, setActiveTab] = useState("profile");
+  // const [bio, setBio] = useState("");
+  // const [profileImage, setProfileImage] = useState<string | null>(null);
+  // const [username, setUsername] = useState("");
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => setProfileImage(reader.result as string);
-      reader.readAsDataURL(file);
-    }
-  };
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   const file = e.target.files?.[0];
+  //   if (file) {
+  //     const reader = new FileReader();
+  //     reader.onloadend = () => setProfileImage(reader.result as string);
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
 
   return (
     <>
@@ -78,18 +78,18 @@ const Profile = () => {
                 {/* Avatar */}
                 <div className="bg-white rounded-xl p-4 flex flex-col items-center gap-3">
                   <div className="relative">
-                    {profileImage ? (
+                    {/* {profileImage ? (
                       <img
                         src={profileImage}
                         className="w-20 h-20 rounded-full object-cover"
                       />
-                    ) : (
-                      <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-3xl font-bold"></div>
-                    )}
+                    ) : ( */}
+                    <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center text-gray-600 text-3xl font-bold"></div>
+                    {/* )} */}
                   </div>
                   <div className="text-center">
                     <p className="font-bold text-gray-900 text-sm">
-                      {username || "User"}
+                      {/* {username || "User"} */} Username
                     </p>
                   </div>
                   <label className="w-full text-center border border-gray-400 text-gray-700 text-xs font-medium py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition">
@@ -98,7 +98,7 @@ const Profile = () => {
                       type="file"
                       accept="image/*"
                       className="hidden"
-                      onChange={handleImageChange}
+                      // onChange={handleImageChange}
                     />
                   </label>
                   <p className="text-xs text-gray-400 text-center">
@@ -121,8 +121,8 @@ const Profile = () => {
                       </label>
                       <input
                         type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        // value={username}
+                        // onChange={(e) => setUsername(e.target.value)}
                         placeholder="Your username"
                         className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                       />
@@ -154,8 +154,8 @@ const Profile = () => {
                     </label>
                     <textarea
                       placeholder="Brief description for your public profile..."
-                      value={bio}
-                      onChange={(e) => setBio(e.target.value)}
+                      // value={bio}
+                      // onChange={(e) => setBio(e.target.value)}
                       maxLength={300}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-24"
                     />
