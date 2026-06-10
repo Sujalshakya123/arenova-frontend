@@ -4,7 +4,7 @@ import { FcGoogle } from "react-icons/fc";
 import { IoCheckmarkDoneCircleOutline } from "react-icons/io5";
 import logo from "../assets/Logo.png";
 import leftcover from "../assets/login-left.png";
-import { useNavigate } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import api from "../api/axios";
 
 type RegisterForm = {
@@ -120,21 +120,21 @@ const SignUp = () => {
                 className="w-full border border-gray-300 rounded-lg px-4 py-2 mt-1 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            <div className="flex-1">
+              <label className="block font-semibold text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                placeholder="Enter your password"
+                name="password"
+                value={form.password}
+                onChange={handleChange}
+                className="w-full h-[42px] border border-gray-300 rounded-lg px-3 py-2 text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
             <div className="flex gap-3 mb-4">
-              <div className="flex-1">
-                <label className="block font-semibold text-gray-700 mb-1">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  placeholder="Enter your password"
-                  name="password"
-                  value={form.password}
-                  onChange={handleChange}
-                  className="w-full h-[42px] border border-gray-300 rounded-lg px-3 py-2 text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
               <div className="flex-1">
                 <label className="block font-semibold text-gray-700 mb-1">
                   Primary Game
@@ -180,9 +180,14 @@ const SignUp = () => {
             </button>
             <p className="text-center text-sm text-gray-500 mt-4">
               Already have an account?{" "}
-              <span className="text-blue-600 cursor-pointer font-medium">
-                Log in
-              </span>
+              <NavLink
+                to="/login"
+                className="font-semibold text-blue-600 cursor-pointer hover:underline"
+              >
+                <span className="text-blue-600 cursor-pointer font-medium">
+                  Log in
+                </span>
+              </NavLink>
             </p>
 
             <div className="flex items-center gap-3 my-5">
@@ -197,10 +202,6 @@ const SignUp = () => {
               <button className="flex-1 flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 text-sm font-medium hover:bg-blue-50 transition">
                 <FcGoogle size={18} />
                 Google
-              </button>
-              <button className="flex-1 flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 text-sm font-medium hover:bg-blue-50 transition">
-                <FaFacebook size={18} className="text-[#1877F2]" />
-                Facebook
               </button>
             </div>
           </div>

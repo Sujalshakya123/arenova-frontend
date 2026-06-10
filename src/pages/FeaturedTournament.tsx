@@ -7,7 +7,12 @@ import valorant from "../assets/Cards/VALORANT2.jpg";
 import codm from "../assets/Cards//CODM.jpg";
 import r6 from "../assets/Cards/RAINBOW SIX.jpg";
 
+import { useState } from "react";
+import TournamentRegisterModal from "../components/popup/TournamentRegisterModal";
+
 const FeaturedTournament = () => {
+  const [showRegister, setShowRegister] = useState(false);
+
   return (
     <>
       <section className="bg-[#0B0F1A] px-[80px] py-10">
@@ -56,9 +61,22 @@ const FeaturedTournament = () => {
                   <p className="text-black text-sm font-semibold">RS. 150</p>
                 </div>
               </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                Register
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRegister(true)}
+                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg cursor-pointer transition"
+                >
+                  Register
+                </button>
+
+                <TournamentRegisterModal
+                  isOpen={showRegister}
+                  onClose={() => setShowRegister(false)}
+                />
+                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
+                  View Details
+                </button>
+              </div>
             </div>
           </div>
 
@@ -90,9 +108,22 @@ const FeaturedTournament = () => {
                   <p className="text-black text-sm font-semibold">RS. 150</p>
                 </div>
               </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                Register
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRegister(true)}
+                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg cursor-pointer transition"
+                >
+                  Register
+                </button>
+
+                <TournamentRegisterModal
+                  isOpen={showRegister}
+                  onClose={() => setShowRegister(false)}
+                />
+                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
+                  View Details
+                </button>
+              </div>
             </div>
           </div>
 
@@ -124,9 +155,21 @@ const FeaturedTournament = () => {
                   <p className="text-black text-sm font-semibold">RS. 150</p>
                 </div>
               </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                Register
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRegister(true)}
+                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition"
+                >
+                  Register
+                </button>
+                <TournamentRegisterModal
+                  isOpen={showRegister}
+                  onClose={() => setShowRegister(false)}
+                />
+                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
+                  View Details
+                </button>
+              </div>
             </div>
           </div>
 
@@ -158,9 +201,21 @@ const FeaturedTournament = () => {
                   <p className="text-black text-sm font-semibold">RS. 150</p>
                 </div>
               </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                Register
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRegister(true)}
+                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition"
+                >
+                  Register
+                </button>
+                <TournamentRegisterModal
+                  isOpen={showRegister}
+                  onClose={() => setShowRegister(false)}
+                />
+                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
+                  View Details
+                </button>
+              </div>
             </div>
           </div>
 
@@ -192,9 +247,21 @@ const FeaturedTournament = () => {
                   <p className="text-black text-sm font-semibold">RS. 150</p>
                 </div>
               </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                Register
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowRegister(true)}
+                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition"
+                >
+                  Register
+                </button>
+                <TournamentRegisterModal
+                  isOpen={showRegister}
+                  onClose={() => setShowRegister(false)}
+                />
+                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
+                  View Details
+                </button>
+              </div>
             </div>
           </div>
 
@@ -226,9 +293,21 @@ const FeaturedTournament = () => {
                   <p className="text-black text-sm font-semibold">RS. 150</p>
                 </div>
               </div>
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                Register
-              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRegister(true)}
+                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition"
+                >
+                  Register
+                </button>
+                <TournamentRegisterModal
+                  isOpen={showRegister}
+                  onClose={() => setShowRegister(false)}
+                />
+                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
+                  View Details
+                </button>
+              </div>
             </div>
           </div>
         </div>

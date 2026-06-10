@@ -180,10 +180,6 @@ const Login = () => {
                 <FcGoogle size={18} />
                 Google
               </button>
-              <button className="flex-1 flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 text-sm font-medium hover:bg-blue-50 transition">
-                <FaFacebook size={18} className="text-[#1877F2]" />
-                Facebook
-              </button>
             </div>
           </div>
         </form>

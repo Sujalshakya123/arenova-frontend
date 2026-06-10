@@ -14,6 +14,8 @@ import Profile from "./pages/Profile";
 import Games from "./pages/Games";
 import Profilesidebar from "./components/User/Profilesidebar";
 import ChangePass from "./pages/ChangePass";
+import ProfileTest from "./pages/Profiletest";
+import Otppage from "./pages/Otppage";
 
 function App() {
   return (
@@ -34,7 +36,8 @@ function App() {
         <Route path="tournaments" element={<Tournaments />} />
         <Route path="games" element={<Games />} />
         <Route path="changepass" element={<ChangePass />} />
-        <Route path="profile" element={<Profile />} />
+        <Route path="profile" element={<ProfileTest />} />
+        <Route path="otp" element={<Otppage />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
       </Routes>
