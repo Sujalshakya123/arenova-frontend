@@ -69,6 +69,10 @@ const Login = () => {
     }
   };
 
+  const googleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
+
   return (
     <>
       <div className="flex ">
@@ -176,7 +180,10 @@ const Login = () => {
             </div>
 
             <div className="flex gap-3 mb-4">
-              <button className="flex-1 flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 text-sm font-medium hover:bg-blue-50 transition">
+              <button
+                onClick={googleLogin}
+                className="flex-1 flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 text-sm font-medium hover:bg-blue-50 transition"
+              >
                 <FcGoogle size={18} />
                 Google
               </button>

@@ -16,6 +16,7 @@ import Profilesidebar from "./components/User/Profilesidebar";
 import ChangePass from "./pages/ChangePass";
 import ProfileTest from "./pages/Profiletest";
 import Otppage from "./pages/Otppage";
+import OAuthSuccess from "./pages/OAuthSuccess";
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
           {/* <Route path="" element={<BrowseGames />} /> */}
           <Route path="browse-games" element={<BrowseGames />} />
           <Route path="featured-tournament" element={<FeaturedTournament />} />
-          <Route path="contacts" element={<Contact />} />
+
           <Route path="list-users" element={<ListUsers />} />
           <Route path="userform" element={<UserForm />} />
         </Route>
@@ -35,11 +36,14 @@ function App() {
         {/* Pages WITHOUT Navbar */}
         <Route path="tournaments" element={<Tournaments />} />
         <Route path="games" element={<Games />} />
+        <Route path="contacts" element={<Contact />} />
         <Route path="changepass" element={<ChangePass />} />
         <Route path="profile" element={<ProfileTest />} />
         <Route path="otp" element={<Otppage />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+
+        <Route path="/oauth-success" element={<OAuthSuccess />} />
       </Routes>
     </>
   );
