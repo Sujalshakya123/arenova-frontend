@@ -1,30 +1,89 @@
-import React, { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import gamehero from "../assets/games-hero.jpg";
 import Navbar from "../components/User/Navbar/Navbar";
 import Footer from "../components/User/Navbar/Footer";
 import { MdEmail } from "react-icons/md";
 import { FaDiscord, FaMapMarkerAlt } from "react-icons/fa";
+import { getApiErrorMessage } from "../api/axios";
+import { submitContact } from "../services/contactApi";
+import { isUserShellDark, userShell } from "../theme/userShellTheme";
+
+const subjectOptions = [
+  "Tournament Inquiry",
+  "Technical Support",
+  "Account Issue",
+  "General Question",
+  "Other",
+];
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const Contact = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("");
+  const [subject, setSubject] = useState("Tournament Inquiry");
   const [message, setMessage] = useState("");
+  const [subjectOpen, setSubjectOpen] = useState(false);
+  const subjectRef = useRef<HTMLDivElement>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    if (!fullName || !email || !message) {
-      alert("Please fill in all required fields.");
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        subjectRef.current &&
+        !subjectRef.current.contains(e.target as Node)
+      ) {
+        setSubjectOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSubmit = async () => {
+    setError(null);
+    setSuccess(null);
+
+    if (!fullName.trim() || !email.trim() || !message.trim()) {
+      setError("Please fill in all required fields.");
       return;
     }
-    alert("Message sent!");
+
+    if (!emailPattern.test(email.trim())) {
+      setError("Enter a valid email address.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      await submitContact({
+        name: fullName.trim(),
+        email: email.trim(),
+        subject,
+        message: message.trim(),
+      });
+      setSuccess("Message sent! We'll get back to you soon.");
+      setFullName("");
+      setEmail("");
+      setSubject("Tournament Inquiry");
+      setMessage("");
+      setSubjectOpen(false);
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Could not send message. Try again."));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navbar Hero */}
+    <div className={userShell.contactPage}>
       <div className="bg-gradient-to-r from-black/75 via-black/40 to-transparent">
         <img
           src={gamehero}
+          alt=""
           className="absolute h-[88px] w-full object-cover opacity-85"
         />
         <div className="relative flex flex-col">
@@ -32,132 +91,165 @@ const Contact = () => {
         </div>
       </div>
 
-      {/* Page Content */}
-      <div className="max-w-5xl mx-auto px-6 py-14">
-        {/* Header */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <div className="mb-10">
-          <p className="text-black text-s font-bold tracking-widest uppercase mb-2">
+          <p
+            className={`text-xs font-bold tracking-widest uppercase mb-2 ${userShell.link}`}
+          >
             Contact
           </p>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
+          <h1
+            className={`text-3xl sm:text-4xl font-bold mb-3 ${isUserShellDark ? "text-white" : "text-gray-900"}`}
+          >
             Get in touch
           </h1>
-          <p className="text-gray-500 text-sm max-w-lg">
+          <p className={`${userShell.subtitle} max-w-lg`}>
             Questions about hosting a tournament, partnerships, or platform
-            support, we'd love to hear from you.
+            support  we&apos;d love to hear from you.
           </p>
         </div>
 
-        {/* Two Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-[1.4fr_1fr] gap-6">
-          {/* Left — Form */}
-          <div className="bg-gray-50 border border-gray-200 rounded-2xl p-8">
-            {/* Name + Email */}
-            <div className="grid grid-cols-2 gap-4 mb-5">
+          <div className={userShell.contactCard}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
               <div>
-                <label className="text-xs text-gray-500 mb-1.5 block">
-                  Username
-                </label>
+                <label className={userShell.label}>Username</label>
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="Your name"
-                  className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className={userShell.inputLg}
                 />
               </div>
               <div>
-                <label className="text-xs text-gray-500 mb-1.5 block">
-                  Email
-                </label>
+                <label className={userShell.label}>Email</label>
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className={userShell.inputLg}
                 />
               </div>
             </div>
 
-            {/* Subject */}
-            <div className="mb-5">
-              <label className="text-xs text-gray-500 mb-1.5 block">
-                Subject
-              </label>
-              <select
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none bg-white cursor-pointer"
-              >
-                <option>Tournament Inquiry</option>
-                <option>Technical Support</option>
-                <option>Account Issue</option>
-                <option>General Question</option>
-                <option>Other</option>
-              </select>
+            <div className="mb-5" ref={subjectRef}>
+              <label className={userShell.label}>Subject</label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setSubjectOpen((open) => !open)}
+                  className={`${userShell.selectTrigger} ${
+                    subjectOpen ? userShell.selectTriggerOpen : ""
+                  }`}
+                >
+                  <span>{subject}</span>
+                  <ChevronDown
+                    size={16}
+                    className={`text-gray-400 transition-transform duration-200 ${
+                      subjectOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                <div
+                  className={`absolute z-20 left-0 right-0 mt-2 origin-top transition-all duration-200 ${
+                    subjectOpen
+                      ? "opacity-100 scale-100 translate-y-0 pointer-events-auto"
+                      : "opacity-0 scale-95 -translate-y-1 pointer-events-none"
+                  }`}
+                >
+                  <ul className={userShell.selectMenu}>
+                    {subjectOptions.map((option) => (
+                      <li key={option} className="w-full">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSubject(option);
+                            setSubjectOpen(false);
+                          }}
+                          className={
+                            subject === option
+                              ? userShell.selectOptionActive
+                              : userShell.selectOption
+                          }
+                        >
+                          {option}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
             </div>
 
-            {/* Message */}
             <div className="mb-6">
-              <label className="text-xs text-gray-500 mb-1.5 block">
-                Message
-              </label>
+              <label className={userShell.label}>Message</label>
               <textarea
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Tell us a bit more..."
                 rows={6}
-                className="w-full bg-white border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+                className={`${userShell.textarea} rounded-xl`}
               />
             </div>
 
+            {error && (
+              <p className="text-sm text-red-400 font-medium mb-3">{error}</p>
+            )}
+            {success && (
+              <p className="text-sm text-emerald-400 font-medium mb-3">
+                {success}
+              </p>
+            )}
+
             <button
-              onClick={handleSubmit}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg text-sm cursor-pointer transition"
+              type="button"
+              onClick={() => void handleSubmit()}
+              disabled={submitting}
+              className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-xl text-sm cursor-pointer transition"
             >
-              Send message
+              {submitting ? "Sending..." : "Send message"}
             </button>
           </div>
 
-          {/* Right — Contact Info */}
           <div className="flex flex-col gap-4">
-            {/* Email */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl px-6 py-5 flex items-center gap-4 hover:border-blue-400 transition cursor-pointer">
-              <MdEmail size={20} className="text-blue-500" />
-              <div>
-                <p className="text-xs text-gray-600 uppercase tracking-widest mb-1">
-                  Email
-                </p>
-                <p className="text-sm font-semibold text-black">
-                  arenovaofc@gmail.com
-                </p>
+            <a
+              href="mailto:sujaruu10@gmail.com"
+              className={userShell.contactTile}
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-600/15 flex items-center justify-center shrink-0">
+                <MdEmail size={20} className="text-blue-400" />
               </div>
-            </div>
-
-            {/* Discord */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl px-6 py-5 flex items-center gap-4 hover:border-blue-400 transition cursor-pointer">
-              <FaDiscord size={20} className="text-blue-500" />
               <div>
-                <p className="text-xs text-gray-600 uppercase tracking-widest mb-1">
-                  Discord
-                </p>
-                <p className="text-sm font-semibold text-black">
-                  Join our server
-                </p>
+                <p className={userShell.contactTileLabel}>Email</p>
+                <p className={userShell.contactTileValue}>sujaruu10@gmail.com</p>
               </div>
-            </div>
+            </a>
 
-            {/* Office */}
-            <div className="bg-gray-50 border border-gray-200 rounded-2xl px-6 py-5 flex items-center gap-4 hover:border-blue-400 transition cursor-pointer">
-              <FaMapMarkerAlt size={20} className="text-blue-500" />
+            <a
+              href="https://discord.com"
+              target="_blank"
+              rel="noreferrer"
+              className={userShell.contactTile}
+            >
+              <div className="w-10 h-10 rounded-xl bg-blue-600/15 flex items-center justify-center shrink-0">
+                <FaDiscord size={20} className="text-blue-400" />
+              </div>
               <div>
-                <p className="text-xs text-gray-600 uppercase tracking-widest mb-1">
-                  Office
-                </p>
-                <p className="text-sm font-semibold text-black">
-                  Bhaktapur, Nepal
-                </p>
+                <p className={userShell.contactTileLabel}>Discord</p>
+                <p className={userShell.contactTileValue}>Join our server</p>
+              </div>
+            </a>
+
+            <div className={userShell.contactTile}>
+              <div className="w-10 h-10 rounded-xl bg-blue-600/15 flex items-center justify-center shrink-0">
+                <FaMapMarkerAlt size={20} className="text-blue-400" />
+              </div>
+              <div>
+                <p className={userShell.contactTileLabel}>Office</p>
+                <p className={userShell.contactTileValue}>Bhaktapur, Nepal</p>
               </div>
             </div>
           </div>

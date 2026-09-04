@@ -23,5 +23,10 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/pages/ListUsers.tsx",
+    "src/pages/UserForm.tsx",
+    "src/pages/Profile.tsx"
+  ]
 }

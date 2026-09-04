@@ -1,318 +1,160 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { FaArrowRight, FaUsers } from "react-icons/fa";
-import pubg from "../assets/Cards/PUBG.jpg";
-import freefire from "../assets/Cards/FREEFIRE.jpg";
-import mlbb from "../assets/Cards/MLBB.jpg";
-import valorant from "../assets/Cards/VALORANT2.jpg";
-import codm from "../assets/Cards//CODM.jpg";
-import r6 from "../assets/Cards/RAINBOW SIX.jpg";
-
-import { useState } from "react";
-import TournamentRegisterModal from "../components/popup/TournamentRegisterModal";
+import { useNavigate } from "react-router";
+import { type UserTournamentCard } from "../data/userTournaments";
+import {
+  tournamentDetailPath,
+  tournamentDetailSubPath,
+} from "./tournaments-detail/resolveTournamentDetail";
+import { getPublicEvents, mapApiEventToCard } from "../services/eventApi";
+import { subscribeRegistrationsUpdated } from "../utils/registrationEvents";
+import { isCardRegistrationOpen } from "../utils/registrationWindow";
+import { useMyRegisteredEventIds } from "../hooks/useMyRegisteredEventIds";
+import OrganizerBadge from "../components/OrganizerBadge";
 
 const FeaturedTournament = () => {
-  const [showRegister, setShowRegister] = useState(false);
+  const navigate = useNavigate();
+  const registeredIds = useMyRegisteredEventIds();
+  const [cards, setCards] = useState<UserTournamentCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        setLoadError(null);
+        const response = await getPublicEvents();
+        setCards(response.data.map(mapApiEventToCard).slice(0, 4));
+      } catch {
+        setCards([]);
+        setLoadError("Could not load featured tournaments.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    void load();
+    return subscribeRegistrationsUpdated(() => {
+      void load();
+    });
+  }, []);
 
   return (
-    <>
-      <section className="bg-[#0B0F1A] px-[80px] py-10">
-        {/* Header */}
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-white text-2xl font-bold">
-              Featured Tournaments
-            </h2>
-            <p className="text-gray-400 text-sm mt-1">
-              Hand-picked competitive events from verified organizers.
+    <section className="bg-[#0B0F1A] px-4 sm:px-6 xl:px-[80px] pt-10 pb-10 border-t border-white/10">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+        <div>
+          <h2 className="text-white text-2xl font-bold">Featured Tournaments</h2>
+          <p className="text-gray-400 text-sm mt-1">
+            Hand-picked competitive events from verified organizers.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => navigate("/tournaments")}
+          className="flex items-center gap-2 text-white text-sm cursor-pointer hover:text-blue-400 transition w-fit"
+        >
+          View all matches <FaArrowRight size={14} />
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 xl:gap-8 mb-10 mt-8">
+        {loading ? (
+          <p className="text-gray-400 text-sm col-span-full">Loading tournaments...</p>
+        ) : loadError ? (
+          <div className="col-span-full bg-[#111827] border border-amber-500/30 rounded-xl px-6 py-12 text-center">
+            <h3 className="text-white text-lg font-semibold">Could not load</h3>
+            <p className="text-amber-300/90 text-sm mt-2">{loadError}</p>
+          </div>
+        ) : cards.length === 0 ? (
+          <div className="col-span-full bg-[#111827] border border-white/10 rounded-xl px-6 py-12 text-center">
+            <h3 className="text-white text-lg font-semibold">No tournaments yet</h3>
+            <p className="text-gray-400 text-sm mt-2">
+              Published organizer tournaments will appear here.
             </p>
           </div>
-          <button className="flex items-center gap-2 text-white text-sm cursor-pointer hover:text-blue-400 transition">
-            View all match <FaArrowRight size={14} />
-          </button>
-        </div>
-
-        {/* Tournament Cards */}
-        <div className="grid grid-cols-4 gap-[80px] mb-20 mt-18">
-          {/* PUBG Mobile */}
-          <div className="bg-[#111827] rounded-xl overflow-hidden">
-            <img
-              src={pubg}
-              alt="PUBG Mobile"
-              className="w-full h-[160px] object-cover"
-            />
-            <div className="bg-white px-3 pb-4 pt-3">
-              <div className="flex justify-between items-center text-sm text-gray-600  mb-2">
-                <span>29 April,2026 - 16:00 - Squad </span>
-                <span className="flex item-center gap-1">
-                  <FaUsers size={18} /> 16/25
-                </span>
-              </div>
-              <h3 className="text-black font-semibold text-sm mb-3">
-                Nepal PUBG Pro League
-              </h3>
-              <div className="flex gap-26  mb-4">
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">PRIZE POOL</p>
-                  <p className="text-black text-sm font-semibold">RS. 20,000</p>
+        ) : (
+          cards.map((tournament) => {
+            const alreadyRegistered = registeredIds.has(tournament.id);
+            const registrationOpen = isCardRegistrationOpen(tournament);
+            return (
+            <div
+              key={tournament.id}
+              className="bg-[#111827] rounded-xl overflow-hidden"
+            >
+              <img
+                src={tournament.image}
+                alt={tournament.alt}
+                className="w-full h-[160px] object-cover"
+              />
+              <div className="bg-white px-3 pb-4 pt-3">
+                <div className="flex justify-between items-center text-sm text-gray-800 mb-2">
+                  <span>{tournament.date}</span>
+                  <span className="flex items-center gap-1">
+                    <FaUsers size={18} /> {tournament.slots}
+                  </span>
                 </div>
-
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">ENTRY FEE</p>
-                  <p className="text-black text-sm font-semibold">RS. 150</p>
+                <h3 className="text-black font-semibold text-base mb-1">
+                  {tournament.title}
+                </h3>
+                {tournament.organizerName ? (
+                  <OrganizerBadge
+                    name={tournament.organizerName}
+                    photoUrl={tournament.organizerPhotoUrl}
+                  />
+                ) : (
+                  <div className="mb-3" />
+                )}
+                <div className="flex gap-26 mb-4">
+                  <div>
+                    <p className="text-gray-700 text-xs font-medium mb-1">PRIZE POOL</p>
+                    <p className="text-black text-sm font-semibold">
+                      {tournament.prizePool}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-700 text-xs font-medium mb-1">ENTRY FEE</p>
+                    <p className="text-black text-sm font-semibold">
+                      {tournament.entryFee}
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg cursor-pointer transition"
-                >
-                  Register
-                </button>
-
-                <TournamentRegisterModal
-                  isOpen={showRegister}
-                  onClose={() => setShowRegister(false)}
-                />
-                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                  View Details
-                </button>
+                <div className="flex gap-3">
+                  {!alreadyRegistered && registrationOpen && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        navigate(tournamentDetailSubPath("register", tournament.id))
+                      }
+                      className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg cursor-pointer transition"
+                    >
+                      Register
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => navigate(tournamentDetailPath(tournament.id))}
+                    className={`${
+                      alreadyRegistered || !registrationOpen ? "w-full" : "w-1/2"
+                    } ${
+                      alreadyRegistered
+                        ? "bg-emerald-600 hover:bg-emerald-700"
+                        : "bg-slate-700 hover:bg-blue-700"
+                    } text-white text-sm font-semibold py-2 rounded-lg cursor-pointer transition`}
+                  >
+                    {alreadyRegistered
+                      ? "Registered"
+                      : !registrationOpen
+                        ? "Registration Closed"
+                        : "View Details"}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* Free Fire */}
-          <div className="bg-[#111827] rounded-xl overflow-hidden">
-            <img
-              src={freefire}
-              alt="Free Fire"
-              className="w-full h-[160px] object-cover"
-            />
-            <div className="bg-white px-3 pb-4 pt-3">
-              <div className="flex justify-between items-center text-sm text-gray-600  mb-2">
-                <span>29 April,2026 - 16:00 - Squad </span>
-                <span className="flex item-center gap-1">
-                  <FaUsers size={18} /> 6/12
-                </span>
-              </div>
-              <h3 className="text-black font-semibold text-sm mb-3">
-                FreeFire World Series - Nepal Qualifier
-              </h3>
-              <div className="flex gap-26  mb-4">
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">PRIZE POOL</p>
-                  <p className="text-black text-sm font-semibold">RS. 20,000</p>
-                </div>
-
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">ENTRY FEE</p>
-                  <p className="text-black text-sm font-semibold">RS. 150</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 rounded-lg cursor-pointer transition"
-                >
-                  Register
-                </button>
-
-                <TournamentRegisterModal
-                  isOpen={showRegister}
-                  onClose={() => setShowRegister(false)}
-                />
-                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                  View Details
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* MLBB */}
-          <div className="bg-[#111827] rounded-xl overflow-hidden">
-            <img
-              src={mlbb}
-              alt="MLBB"
-              className="w-full h-[160px] object-cover"
-            />
-            <div className="bg-white px-3 pb-4 pt-3">
-              <div className="flex justify-between items-center text-sm text-gray-600  mb-2">
-                <span>29 April,2026 - 16:00 - Squad </span>
-                <span className="flex item-center gap-1">
-                  <FaUsers size={18} /> 6/15
-                </span>
-              </div>
-              <h3 className="text-black font-semibold text-sm mb-3">
-                MLBB Pro Series - Nepal Qualifier
-              </h3>
-              <div className="flex gap-26  mb-4">
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">PRIZE POOL</p>
-                  <p className="text-black text-sm font-semibold">RS. 20,000</p>
-                </div>
-
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">ENTRY FEE</p>
-                  <p className="text-black text-sm font-semibold">RS. 150</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition"
-                >
-                  Register
-                </button>
-                <TournamentRegisterModal
-                  isOpen={showRegister}
-                  onClose={() => setShowRegister(false)}
-                />
-                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                  View Details
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/*  Valorant */}
-          <div className="bg-[#111827] rounded-xl overflow-hidden">
-            <img
-              src={valorant}
-              alt="Valorant"
-              className="w-full h-[160px] object-cover"
-            />
-            <div className="bg-white px-3 pb-4 pt-3">
-              <div className="flex justify-between items-center text-sm text-gray-600  mb-2">
-                <span>29 April,2026 - 16:00 - Squad </span>
-                <span className="flex item-center gap-1">
-                  <FaUsers size={18} /> 16/20
-                </span>
-              </div>
-              <h3 className="text-black font-semibold text-sm mb-3">
-                Valorant Champions Tour - Nepal Qualifier
-              </h3>
-              <div className="flex gap-26  mb-4">
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">PRIZE POOL</p>
-                  <p className="text-black text-sm font-semibold">RS. 20,000</p>
-                </div>
-
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">ENTRY FEE</p>
-                  <p className="text-black text-sm font-semibold">RS. 150</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition"
-                >
-                  Register
-                </button>
-                <TournamentRegisterModal
-                  isOpen={showRegister}
-                  onClose={() => setShowRegister(false)}
-                />
-                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                  View Details
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* CODM */}
-          <div className="bg-[#111827] rounded-xl overflow-hidden">
-            <img
-              src={codm}
-              alt="CODM"
-              className="w-full h-[160px] object-cover"
-            />
-            <div className="bg-white px-3 pb-4 pt-3">
-              <div className="flex justify-between items-center text-sm text-gray-600  mb-2">
-                <span>29 April,2026 - 16:00 - Squad </span>
-                <span className="flex item-center gap-1">
-                  <FaUsers size={18} /> 16/25
-                </span>
-              </div>
-              <h3 className="text-black font-semibold text-sm mb-3">
-                CODM Nepal Qualifier
-              </h3>
-              <div className="flex gap-26  mb-4">
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">PRIZE POOL</p>
-                  <p className="text-black text-sm font-semibold">RS. 20,000</p>
-                </div>
-
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">ENTRY FEE</p>
-                  <p className="text-black text-sm font-semibold">RS. 150</p>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition"
-                >
-                  Register
-                </button>
-                <TournamentRegisterModal
-                  isOpen={showRegister}
-                  onClose={() => setShowRegister(false)}
-                />
-                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                  View Details
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* R6 */}
-          <div className="bg-[#111827] rounded-xl overflow-hidden">
-            <img
-              src={r6}
-              alt="RAINBOW SIX SIEGE"
-              className="w-full h-[160px] object-cover"
-            />
-            <div className="bg-white px-3 pb-4 pt-3">
-              <div className="flex justify-between items-center text-sm text-gray-600  mb-2">
-                <span>29 April,2026 - 16:00 - Squad </span>
-                <span className="flex item-center gap-1">
-                  <FaUsers size={18} /> 16/25
-                </span>
-              </div>
-              <h3 className="text-black font-semibold text-sm mb-3">
-                Rainbow Six Siege Nepal Qualifier
-              </h3>
-              <div className="flex gap-26  mb-4">
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">PRIZE POOL</p>
-                  <p className="text-black text-sm font-semibold">RS. 20,000</p>
-                </div>
-
-                <div>
-                  <p className="text-gray-500 text-xm mb-1">ENTRY FEE</p>
-                  <p className="text-black text-sm font-semibold">RS. 150</p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowRegister(true)}
-                  className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition"
-                >
-                  Register
-                </button>
-                <TournamentRegisterModal
-                  isOpen={showRegister}
-                  onClose={() => setShowRegister(false)}
-                />
-                <button className="w-1/2 bg-gray-400  hover:bg-blue-700 text-white text-sm font-semibold   py-2 rounded-lg cursor-pointer transition">
-                  View Details
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
+            );
+          })
+        )}
+      </div>
+    </section>
   );
 };
 

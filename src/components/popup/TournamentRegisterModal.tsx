@@ -53,8 +53,20 @@ const TournamentRegisterModal = ({ isOpen, onClose }: RegisterModalProps) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center px-4">
-      <div className="bg-gray-100 rounded-2xl w-full max-w-[560px] max-h-[90vh] overflow-y-auto shadow-2xl">
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center px-4 py-6"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Tournament Registration"
+    >
+      {/* Page-tinted blur overlay — keeps home page visible */}
+      <div className="absolute inset-0 bg-[#0B0F1A]/60 backdrop-blur-md" />
+
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative bg-gray-100 rounded-2xl w-full max-w-[560px] max-h-[90vh] overflow-y-auto shadow-2xl"
+      >
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-5 pb-4">
           <h2 className="text-lg font-bold text-gray-900">

@@ -1,6 +1,7 @@
-import React from "react";
 import {
+  IoGridOutline,
   IoLogOutOutline,
+  IoNotificationsOutline,
   IoPersonOutline,
   IoShieldOutline,
   IoTrophyOutline,
@@ -8,8 +9,36 @@ import {
 import { NavLink, useNavigate } from "react-router";
 import { useAuth } from "../../context/AuthContext";
 
+const navItems = [
+  {
+    name: "Dashboard",
+    icon: IoGridOutline,
+    path: "/dashboard",
+  },
+  {
+    name: "Profile",
+    icon: IoPersonOutline,
+    path: "/profile",
+  },
+  {
+    name: "Notifications",
+    icon: IoNotificationsOutline,
+    path: "/notifications",
+  },
+  {
+    name: "My Tournaments",
+    icon: IoTrophyOutline,
+    path: "/my-tournaments",
+  },
+  {
+    name: "Security",
+    icon: IoShieldOutline,
+    path: "/changepass",
+  },
+];
+
 const Profilesidebar = () => {
-  const { logout } = useAuth();
+  const { logout, userDTO, profileImage } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -17,66 +46,90 @@ const Profilesidebar = () => {
     navigate("/login");
   };
 
-  const content = [
-    { name: "Profile", icon: <IoPersonOutline size={20} />, path: "/profile" },
-    {
-      name: "My Tournaments",
-      icon: <IoTrophyOutline size={20} />,
-      path: "/my-tournaments",
-    },
-    {
-      name: "Security",
-      icon: <IoShieldOutline size={20} />,
-      path: "/changepass",
-    },
-  ];
+  const displayName = userDTO?.username || "Player";
+  const displayEmail = userDTO?.email || "Sign in to sync your account";
+  const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <>
-      <div className="flex min-h-screen">
-        {/* Sidebar */}
-        <div className="bg-[#0B0F1A] w-[360px] min-h-screen">
-          <div>
-            <div className="px-[30px]">
-              <h2 className="mt-10 mb-4 font-medium text-gray-300 flex items-center">
-                Profile Menu
-              </h2>
-              <div>
-                <ul className=" text-gray-600 font-semibold mt-4 flex flex-col gap-3 cursor-pointer">
-                  {content.map((item) => (
-                    <li key={item.name}>
-                      <NavLink
-                        to={item.path}
-                        className={({ isActive }) =>
-                          `flex items-center gap-2 px-4 py-2 rounded-lg transition font-semibold ${
-                            isActive
-                              ? "bg-[#1e2535] text-white"
-                              : "text-gray-400 hover:text-white hover:bg-[#1e2535]"
-                          }`
-                        }
-                      >
-                        {item.icon}
-                        {item.name}
-                      </NavLink>
-                    </li>
-                  ))}
-                  {/* Logout */}
-                  <li>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg transition font-semibold text-red-400 hover:text-white hover:bg-red-600 w-full text-left cursor-pointer"
-                    >
-                      <IoLogOutOutline size={20} />
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              </div>
+    <aside className="sticky top-0 h-screen w-[280px] shrink-0 bg-[#0B0F1A] border-r border-white/5 flex flex-col">
+      {/* User card */}
+      <div className="px-5 pt-8 pb-6">
+        <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.04] border border-white/[0.06]">
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt={displayName}
+              className="w-11 h-11 rounded-full object-cover ring-2 ring-blue-500/40"
+            />
+          ) : (
+            <div className="w-11 h-11 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-lg ring-2 ring-blue-500/40">
+              {initial}
             </div>
+          )}
+          <div className="min-w-0">
+            <p className="text-white font-semibold text-sm truncate">
+              {displayName}
+            </p>
+            <p className="text-gray-500 text-sm truncate">{displayEmail}</p>
           </div>
         </div>
       </div>
-    </>
+
+      {/* Nav */}
+      <nav className="flex-1 px-4 overflow-y-auto">
+        <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-500">
+          Account
+        </p>
+        <ul className="flex flex-col gap-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <li key={item.name}>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    `group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                      isActive
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-600/25"
+                        : "text-gray-400 hover:text-white hover:bg-white/[0.06]"
+                    }`
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <span
+                        className={`flex items-center justify-center w-8 h-8 rounded-lg transition ${
+                          isActive
+                            ? "bg-white/15"
+                            : "bg-white/[0.04] group-hover:bg-white/[0.08]"
+                        }`}
+                      >
+                        <Icon size={17} />
+                      </span>
+                      {item.name}
+                    </>
+                  )}
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+      </nav>
+
+      {/* Logout */}
+      <div className="px-4 pb-6 pt-3 border-t border-white/5">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-red-400 hover:text-white hover:bg-red-600/90 transition-all duration-200 cursor-pointer"
+        >
+          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10">
+            <IoLogOutOutline size={17} />
+          </span>
+          Logout
+        </button>
+      </div>
+    </aside>
   );
 };
 

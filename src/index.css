@@ -1,1 +1,74 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: "Ethnocentric";
+  src: url("./assets/fonts/ethnocentric/Ethnocentric-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Ethnocentric";
+  src: url("./assets/fonts/ethnocentric/Ethnocentric-Regular.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-arenova: "Ethnocentric", sans-serif;
+  --font-display: "Outfit", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+}
+
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.92);
+  }
+}
+
+.hero-fade-up {
+  animation: hero-fade-up 0.7s ease-out both;
+}
+
+.hero-fade-up-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.hero-fade-up-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.hero-fade-up-delay-3 {
+  animation-delay: 0.3s;
+}
+
+.hero-fade-up-delay-4 {
+  animation-delay: 0.4s;
+}
+
+.live-pulse-dot {
+  animation: live-pulse 1.8s ease-in-out infinite;
+}

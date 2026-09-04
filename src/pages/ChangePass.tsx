@@ -4,25 +4,79 @@ import tourhero from "../assets/download.jpg";
 import Navbar from "../components/User/Navbar/Navbar";
 import Footer from "../components/User/Navbar/Footer";
 import Profilesidebar from "../components/User/Profilesidebar";
+import ResponsiveSidebarLayout from "../components/ResponsiveSidebarLayout";
+import { useAuth } from "../context/AuthContext";
+import { getApiErrorMessage } from "../api/axios";
+import { changePassword } from "../services/userApi";
+import { getPasswordPolicyError, PASSWORD_POLICY_MESSAGE } from "../utils/passwordPolicy";
+import PasswordInput from "../components/PasswordInput";
+import { userShell } from "../theme/userShellTheme";
 
 const ChangePass = () => {
+  const { userDTO } = useAuth();
   const [form, setForm] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (form.newPassword !== form.confirmPassword) {
-      alert("Passwords do not match!");
+
+    setError(null);
+    setSuccess(null);
+
+    if (!userDTO?.id || userDTO.id.includes("@")) {
+      setError("Please log out and log in again so your account id can be loaded.");
       return;
     }
-    alert("Password updated successfully!");
+    if (!form.currentPassword.trim()) {
+      setError("Current password is required.");
+      return;
+    }
+    if (!form.newPassword.trim()) {
+      setError("New password is required.");
+      return;
+    }
+    const passwordError = getPasswordPolicyError(form.newPassword);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+    if (form.newPassword !== form.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const response = await changePassword(
+        userDTO.id,
+        form.currentPassword,
+        form.newPassword,
+      );
+      setSuccess(
+        typeof response.data === "string"
+          ? response.data
+          : "Password updated successfully!",
+      );
+      setForm({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Could not update password."));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -37,24 +91,26 @@ const ChangePass = () => {
             <Navbar />
           </div>
         </div>
-        <div className="flex min-h-screen bg-[#f4f6fb]">
-          <Profilesidebar />
-
-          <div className="flex-1 px-[60px] py-10">
+        <ResponsiveSidebarLayout
+          sidebar={<Profilesidebar />}
+          className={userShell.page}
+          filterLabel="Account menu"
+        >
+          <div className={userShell.contentWide}>
             {/* Header */}
             <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className={userShell.h1}>
                 Security & Privacy
               </h1>
-              <p className="text-gray-500 text-sm mt-1">
+              <p className={userShell.subtitle}>
                 Manage your account security, connected devices, and
                 authentication methods.
               </p>
             </div>
 
             {/* Change Password Card */}
-            <div className="bg-white rounded-xl p-8 max-w-[660px]">
-              <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+            <div className={userShell.cardPad8}>
+              <h2 className={`${userShell.h2Lg} mb-6 flex items-center gap-2`}>
                 <MdSecurity size={22} className="text-blue-600" />
                 Change Password
               </h2>
@@ -62,59 +118,69 @@ const ChangePass = () => {
               <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                 {/* Current Password */}
                 <div>
-                  <label className="text-sm text-gray-600 mb-1 block">
+                  <label className={userShell.labelPlain}>
                     Current Password
                   </label>
-                  <input
-                    type="password"
+                  <PasswordInput
                     name="currentPassword"
                     value={form.currentPassword}
                     onChange={handleChange}
                     placeholder="••••••••••••"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className={userShell.inputLg}
                   />
                 </div>
 
                 {/* New + Confirm side by side */}
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
-                    <label className="text-sm text-gray-600 mb-1 block">
+                    <label className={userShell.labelPlain}>
                       New Password
                     </label>
-                    <input
-                      type="password"
+                    <PasswordInput
                       name="newPassword"
                       value={form.newPassword}
                       onChange={handleChange}
                       placeholder="••••••••••••"
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={userShell.inputLg}
                     />
+                    <p className={`${userShell.mutedXs} mt-1`}>{PASSWORD_POLICY_MESSAGE}</p>
                   </div>
                   <div className="flex-1">
-                    <label className="text-sm text-gray-600 mb-1 block">
+                    <label className={userShell.labelPlain}>
                       Confirm New Password
                     </label>
-                    <input
-                      type="password"
+                    <PasswordInput
                       name="confirmPassword"
                       value={form.confirmPassword}
                       onChange={handleChange}
                       placeholder="••••••••••••"
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={userShell.inputLg}
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-lg w-fit transition cursor-pointer"
+                  disabled={submitting}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold px-6 py-2.5 rounded-lg w-fit transition cursor-pointer"
                 >
-                  Update Password
+                  {submitting ? "Updating..." : "Update Password"}
                 </button>
+
+                {error && (
+                  <p className="text-sm text-red-600 font-medium">
+                    {error}
+                  </p>
+                )}
+                {success && (
+                  <p className="text-sm text-emerald-700 font-medium">
+                    {success}
+                  </p>
+                )}
               </form>
             </div>
           </div>
-        </div>
+        </ResponsiveSidebarLayout>
       </div>
       <div>
         <Footer />

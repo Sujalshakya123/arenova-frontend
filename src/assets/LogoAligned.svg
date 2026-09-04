@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 220" width="512" height="562">
+  <defs>
+    <linearGradient id="brand" x1="20%" y1="0%" x2="80%" y2="100%">
+      <stop offset="0%" stop-color="#2DD4FF"/>
+      <stop offset="40%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+
+  <g fill="none" stroke="url(#brand)" stroke-width="11" stroke-linecap="square" stroke-linejoin="miter">
+    <!-- Left leg -->
+    <path d="M 51 198 L 100 24"/>
+    <path d="M 65 198 L 100 58"/>
+
+    <!-- Right leg: inner edge offset parallel to outer (same width top to bottom) -->
+    <path d="M 100 24 L 149 198"/>
+    <path d="M 88.5 27.2 L 137.5 201.2"/>
+
+    <!-- Lightning crossbar -->
+    <path d="M 57 130 L 75 118 L 91 132 L 107 118 L 125 124 L 147 114 L 177 104"/>
+  </g>
+</svg>

@@ -1,23 +1,36 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
+import { getApiErrorMessage } from "../api/axios";
 import { createUser } from "../services/UserService.js";
+import PasswordInput from "../components/PasswordInput";
 
 const UserForm = () => {
-  const [username, setUsername] = useState();
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
-  const [contact, setContact] = useState();
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [contact, setContact] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function handleFormSubmit(e) {
+  function handleFormSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (submitting) return;
 
+    setSubmitting(true);
     const user = { username, email, password, contact };
 
     createUser(user)
-      .then((response) => {
-        console.log("ADDED TO DATABASE");
+      .then(() => {
+        toast.success("User created successfully.");
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setContact("");
       })
-      .catch((error) => {
-        console.log(error);
+      .catch((error: unknown) => {
+        toast.error(getApiErrorMessage(error, "Could not create user."));
+      })
+      .finally(() => {
+        setSubmitting(false);
       });
   }
 
@@ -47,9 +60,8 @@ const UserForm = () => {
             onChange={(e) => setEmail(e.target.value)}
           />
           <label>Password</label>
-          <input
+          <PasswordInput
             className="border border-black"
-            type="password"
             placeholder="Enter password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -65,8 +77,9 @@ const UserForm = () => {
 
           <input
             type="submit"
-            value="Submit"
-            className="bg-black text-white mt-8 cursor-pointer"
+            value={submitting ? "Submitting..." : "Submit"}
+            disabled={submitting}
+            className="bg-black text-white mt-8 cursor-pointer disabled:opacity-60"
           />
         </form>
       </div>

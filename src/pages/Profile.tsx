@@ -1,13 +1,12 @@
 import React from "react";
 
 import { useState } from "react";
-import { FaDiscord, FaPlus, FaFacebook } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 import Navbar from "../components/User/Navbar/Navbar";
 import Footer from "../components/User/Navbar/Footer";
 
 import tourhero from "../assets/download.jpg";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { PiPlusCircleBold } from "react-icons/pi";
 import { NavLink } from "react-router";
 import valo from "../assets/Game-icon/valorant-50.png";
 import ff from "../assets/Game-icon/FF.png";
@@ -207,48 +206,9 @@ const Profile = () => {
                     </div>
                   </div>
                   <div className="flex justify-center">
-                    <button className="flex items-center gap-1 text-gray-500 text-sm mt-4 hover:text-gray-700 cursor-pointer">
-                      <PiPlusCircleBold size={16} /> Link New Account
-                    </button>
-                  </div>
-                </div>
-
-                {/* Social Connections */}
-                <div className="bg-white rounded-xl p-6">
-                  <h2 className="font-bold text-gray-900 text-base mb-4">
-                    Social Connections
-                  </h2>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <FaDiscord size={20} className="text-indigo-500" />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">
-                            Discord
-                          </p>
-                          <p className="text-xs text-indigo-400">
-                            sujaruu#1000
-                          </p>
-                        </div>
-                      </div>
-                      <button className="border border-gray-300 text-gray-600 text-xs px-3 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer">
-                        Disconnect
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <FaFacebook size={20} className="text-blue-500" />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">
-                            Facebook
-                          </p>
-                          <p className="text-xs text-gray-400">Not connected</p>
-                        </div>
-                      </div>
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer transition">
-                        Connect Account
-                      </button>
-                    </div>
+                    <p className="text-sm text-gray-400 mt-4">
+                      Preferred games are managed from your live profile page.
+                    </p>
                   </div>
                 </div>
               </div>

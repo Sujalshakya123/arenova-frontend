@@ -1,7 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import ReactCrop, { type Crop } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
-import { FaDiscord, FaPlus, FaFacebook, FaCamera } from "react-icons/fa";
+import { FaPlus, FaCamera, FaTimes } from "react-icons/fa";
 import Navbar from "../components/User/Navbar/Navbar";
 import Footer from "../components/User/Navbar/Footer";
 import tourhero from "../assets/download.jpg";
@@ -10,13 +10,69 @@ import { PiPlusCircleBold } from "react-icons/pi";
 import { NavLink } from "react-router";
 import valo from "../assets/Game-icon/valorant-50.png";
 import ff from "../assets/Game-icon/FF.png";
+import pubg from "../assets/Game-icon/pubg.png";
+import mlbb from "../assets/Game-icon/mlbb.png";
+import codm from "../assets/Game-icon/call-of-duty-m.png";
+import r6 from "../assets/Game-icon/Rainbow-Six.png";
 import Profilesidebar from "../components/User/Profilesidebar";
+import ResponsiveSidebarLayout from "../components/ResponsiveSidebarLayout";
+import { useAuth } from "../context/AuthContext";
+import { getApiErrorMessage } from "../api/axios";
+import ConfirmModal from "../components/ConfirmModal";
+import { userShell } from "../theme/userShellTheme";
+import {
+  dataUrlToFile,
+  getUserById,
+  updatePreferredGames,
+  updateUserProfile,
+  uploadProfilePhoto,
+} from "../services/userApi";
+
+type PreferredGame = {
+  id: string;
+  name: string;
+  icon: string;
+};
+
+const availableGames: PreferredGame[] = [
+  { id: "valorant", name: "Valorant", icon: valo },
+  { id: "freefire", name: "FreeFire", icon: ff },
+  { id: "pubg", name: "PUBG Mobile", icon: pubg },
+  { id: "mlbb", name: "Mobile Legends", icon: mlbb },
+  { id: "codm", name: "Call of Duty Mobile", icon: codm },
+  { id: "r6", name: "Rainbow Six Siege", icon: r6 },
+];
+
+/** Game logos (e.g. FreeFire) are dark — always sit on a white tile. */
+const gameIconTileClass =
+  "w-10 h-10 rounded-lg bg-white flex items-center justify-center overflow-hidden shrink-0";
+
+const parsePreferredGames = (value?: string | null): PreferredGame[] => {
+  if (!value?.trim()) return [];
+  return value
+    .split(",")
+    .map((id) => id.trim())
+    .map((id) => availableGames.find((game) => game.id === id))
+    .filter((game): game is PreferredGame => Boolean(game));
+};
 
 const ProfileTest = () => {
+  const { userDTO, profileImage, setProfileImage, updateUser } = useAuth();
+  const [username, setUsername] = useState(userDTO?.username ?? "");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState(userDTO?.email ?? "");
   const [bio, setBio] = useState("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [rawImage, setRawImage] = useState<string | null>(null);
   const [showCropModal, setShowCropModal] = useState(false);
+  const [showAddGameModal, setShowAddGameModal] = useState(false);
+  const [pendingDiscard, setPendingDiscard] = useState(false);
+  const [pendingRemoveGameId, setPendingRemoveGameId] = useState<string | null>(null);
+  const [preferredGames, setPreferredGames] = useState<PreferredGame[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [crop, setCrop] = useState<Crop>({
     unit: "%",
     width: 80,
@@ -25,6 +81,103 @@ const ProfileTest = () => {
     y: 10,
   });
   const imgRef = useRef<HTMLImageElement | null>(null);
+
+  const canSave =
+    Boolean(userDTO?.id) && !userDTO!.id.includes("@") && !saving && !loading;
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!userDTO?.id || userDTO.id.includes("@")) {
+        setLoading(false);
+        setError("Please log out and log in again so your profile can load.");
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await getUserById(userDTO.id);
+        const user = response.data;
+        setUsername(user.username ?? "");
+        setFullName(user.fullName ?? "");
+        setEmail(user.email ?? "");
+        setBio(user.bio ?? "");
+        setPreferredGames(parsePreferredGames(user.preferredGames));
+        if (user.profilePhotoUrl) {
+          setProfileImage(user.profilePhotoUrl);
+        }
+      } catch (err) {
+        setError(getApiErrorMessage(err, "Could not load profile."));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void loadProfile();
+  }, [userDTO?.id, setProfileImage]);
+
+  const selectableGames = availableGames.filter(
+    (game) => !preferredGames.some((p) => p.id === game.id),
+  );
+
+  const handleAddGame = (game: PreferredGame) => {
+    setPreferredGames((prev) => [...prev, game]);
+    setShowAddGameModal(false);
+  };
+
+  const handleRemoveGame = (id: string) => {
+    setPreferredGames((prev) => prev.filter((game) => game.id !== id));
+  };
+
+  const handleDiscard = () => {
+    void (async () => {
+      if (!userDTO?.id || userDTO.id.includes("@")) return;
+      try {
+        const response = await getUserById(userDTO.id);
+        const user = response.data;
+        setUsername(user.username ?? "");
+        setEmail(user.email ?? "");
+        setBio(user.bio ?? "");
+        setFullName(user.fullName ?? "");
+        setPreferredGames(parsePreferredGames(user.preferredGames));
+        setMessage(null);
+        setError(null);
+      } catch (err) {
+        setError(getApiErrorMessage(err, "Could not reload profile."));
+      }
+    })();
+  };
+
+  const handleSave = async () => {
+    if (!canSave || !userDTO?.id) return;
+
+    try {
+      setSaving(true);
+      setError(null);
+      setMessage(null);
+
+      await updateUserProfile(userDTO.id, {
+        username: username.trim(),
+        fullName: fullName.trim(),
+        email: email.trim(),
+        bio,
+      });
+      await updatePreferredGames(
+        userDTO.id,
+        preferredGames.map((game) => game.id),
+      );
+
+      updateUser({
+        username: username.trim(),
+        email: email.trim(),
+      });
+      setMessage("Profile saved successfully.");
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Could not save profile."));
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // ✅ Open crop modal after picking image
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,8 +193,12 @@ const ProfileTest = () => {
   };
 
   // ✅ Crop and save
-  const handleCropDone = () => {
+  const handleCropDone = async () => {
     if (!imgRef.current || !crop.width || !crop.height) return;
+    if (!userDTO?.id || userDTO.id.includes("@")) {
+      setError("Please log out and log in again before uploading a photo.");
+      return;
+    }
 
     const canvas = document.createElement("canvas");
     const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
@@ -65,9 +222,25 @@ const ProfileTest = () => {
       crop.height,
     );
 
-    setProfileImage(canvas.toDataURL("image/jpeg"));
+    const dataUrl = canvas.toDataURL("image/jpeg");
+    setProfileImage(dataUrl);
     setShowCropModal(false);
     setRawImage(null);
+
+    try {
+      setUploadingPhoto(true);
+      setError(null);
+      const file = await dataUrlToFile(dataUrl, "profile.jpg");
+      const response = await uploadProfilePhoto(userDTO.id, file);
+      if (response.data.photoUrl) {
+        setProfileImage(response.data.photoUrl);
+      }
+      setMessage("Profile photo updated.");
+    } catch (err) {
+      setError(getApiErrorMessage(err, "Could not upload profile photo."));
+    } finally {
+      setUploadingPhoto(false);
+    }
   };
 
   const handleCropCancel = () => {
@@ -88,38 +261,64 @@ const ProfileTest = () => {
           </div>
         </div>
 
-        <div className="flex min-h-screen">
-          <Profilesidebar />
-
-          <div className="flex-1 bg-gray-100 px-6 py-8">
+        <ResponsiveSidebarLayout
+          sidebar={<Profilesidebar />}
+          className={userShell.pageAlt}
+          filterLabel="Account menu"
+        >
+          <div className={userShell.contentAlt}>
             {/* Header */}
-            <div className="flex justify-between items-start mb-6">
+            <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4 mb-6">
               <NavLink to="/">
-                <IoMdArrowRoundBack size={24} className="cursor-pointer" />
+                <IoMdArrowRoundBack size={24} className={userShell.iconBack} />
               </NavLink>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className={userShell.h1}>
                   Account Settings
                 </h1>
-                <p className="text-gray-500 text-sm mt-1">
+                <p className={userShell.subtitle}>
                   Manage your professional athlete profile and display
                   preferences.
                 </p>
               </div>
-              <div className="flex gap-3">
-                <button className="border border-gray-400 text-gray-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition cursor-pointer">
+              <div className="flex flex-wrap gap-3 lg:shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setPendingDiscard(true)}
+                  disabled={loading || saving}
+                  className={`${userShell.btnDiscard} disabled:opacity-60`}
+                >
                   Discard Changes
                 </button>
-                <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition cursor-pointer">
-                  Save Changes
+                <button
+                  type="button"
+                  onClick={() => void handleSave()}
+                  disabled={!canSave}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition cursor-pointer disabled:opacity-60"
+                >
+                  {saving ? "Saving..." : "Save Changes"}
                 </button>
               </div>
             </div>
 
-            <div className="flex gap-6">
+            {(error || message || uploadingPhoto || loading) && (
+              <div className="mb-4 space-y-1">
+                {loading && (
+                  <p className={userShell.bodySm}>Loading profile...</p>
+                )}
+                {uploadingPhoto && (
+                  <p className={userShell.bodySm}>Uploading photo...</p>
+                )}
+                {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+                {message && (
+                  <p className="text-sm text-emerald-700 font-medium">{message}</p>
+                )}
+              </div>
+            )}
+            <div className="flex flex-col xl:flex-row gap-6">
               {/* Left Panel */}
-              <div className="flex flex-col gap-4 w-[200px]">
-                <div className="bg-white rounded-xl p-4 flex flex-col items-center gap-3">
+              <div className="flex flex-col gap-4 w-full xl:w-[200px] shrink-0">
+                <div className={`${userShell.cardPad4} flex flex-col items-center gap-3`}>
                   {/* ✅ Avatar with camera hover */}
                   <div className="relative">
                     {profileImage ? (
@@ -144,9 +343,9 @@ const ProfileTest = () => {
                   </div>
 
                   <div className="text-center">
-                    <p className="font-bold text-gray-900 text-sm">Username</p>
+                    <p className={`${userShell.strong} text-sm`}>Username</p>
                   </div>
-                  <label className="w-full text-center border border-gray-400 text-gray-700 text-xs font-medium py-1.5 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                  <label className={userShell.btnPhoto}>
                     Change Photo
                     <input
                       type="file"
@@ -155,7 +354,7 @@ const ProfileTest = () => {
                       onChange={handleImageChange}
                     />
                   </label>
-                  <p className="text-xs text-gray-400 text-center">
+                  <p className={`${userShell.bodySm} text-center`}>
                     JPG, GIF or PNG. Max size of 800K
                   </p>
                 </div>
@@ -164,44 +363,50 @@ const ProfileTest = () => {
               {/* Right Panel */}
               <div className="flex-1 flex flex-col gap-4">
                 {/* Personal Information */}
-                <div className="bg-white rounded-xl p-6">
-                  <h2 className="font-bold text-gray-900 text-base mb-4">
+                <div className={userShell.cardPad6}>
+                  <h2 className={`${userShell.h2Base} mb-4`}>
                     Personal Information
                   </h2>
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">
+                      <label className={userShell.label}>
                         Username
                       </label>
                       <input
                         type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
                         placeholder="Your username"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={userShell.input}
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-gray-500 mb-1 block">
+                      <label className={userShell.label}>
                         Full Name
                       </label>
                       <input
                         type="text"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
                         placeholder="Enter your legal name"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className={userShell.input}
                       />
                     </div>
                   </div>
                   <div className="mb-4">
-                    <label className="text-xs text-gray-500 mb-1 block">
+                    <label className={userShell.label}>
                       Email
                     </label>
                     <input
                       type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={userShell.input}
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-gray-500 mb-1 block">
+                    <label className={userShell.label}>
                       Bio
                     </label>
                     <textarea
@@ -209,109 +414,150 @@ const ProfileTest = () => {
                       maxLength={300}
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none h-24"
+                      className={`${userShell.textarea} h-24`}
                     />
-                    <p className="text-xs text-gray-400 text-right">
+                    <p className={`${userShell.mutedXs} text-right`}>
                       {bio.length}/300
                     </p>
                   </div>
                 </div>
 
                 {/* Preferred Games */}
-                <div className="bg-white rounded-xl p-6">
+                <div className={userShell.cardPad6}>
                   <div className="flex justify-between items-center mb-4">
                     <div>
-                      <h2 className="font-bold text-gray-900 text-base">
+                      <h2 className={userShell.h2Base}>
                         Preferred Games
                       </h2>
-                      <p className="text-xs text-gray-500">
+                      <p className={userShell.bodySm}>
                         Games you are currently active in.
                       </p>
                     </div>
-                    <button className="flex items-center gap-1 text-blue-600 text-sm font-medium hover:underline cursor-pointer">
+                    <button
+                      type="button"
+                      onClick={() => setShowAddGameModal(true)}
+                      className={`flex items-center gap-1 ${userShell.linkBold} hover:underline cursor-pointer`}
+                    >
                       <FaPlus size={12} /> Add Game
                     </button>
                   </div>
-                  <div className="flex gap-4">
-                    <div className="flex items-center gap-3 border border-gray-200 rounded-lg px-2 py-3">
-                      <img
-                        src={valo}
-                        alt="Valorant"
-                        className="w-10 h-10 rounded-lg"
-                      />
-                      <p className="text-sm font-semibold text-gray-900">
-                        Valorant
+                  <div className="flex flex-wrap gap-4">
+                    {preferredGames.length === 0 ? (
+                      <p className={userShell.empty}>
+                        No preferred games yet. Click Add Game to choose.
                       </p>
-                    </div>
-                    <div className="flex items-center gap-3 border border-gray-200 rounded-lg px-4 py-3">
-                      <img
-                        src={ff}
-                        alt="Free Fire"
-                        className="w-10 h-10 rounded-lg"
-                      />
-                      <p className="text-sm font-semibold text-gray-900">
-                        FreeFire
-                      </p>
-                    </div>
+                    ) : (
+                      preferredGames.map((game) => (
+                        <div
+                          key={game.id}
+                          className={userShell.gameChip}
+                        >
+                          <div className={gameIconTileClass}>
+                            <img
+                              src={game.icon}
+                              alt={game.name}
+                              className="w-8 h-8 object-contain"
+                            />
+                          </div>
+                          <p className={`text-sm font-semibold ${userShell.strong} pr-4`}>
+                            {game.name}
+                          </p>
+                          <button
+                            type="button"
+                            onClick={() => setPendingRemoveGameId(game.id)}
+                            aria-label={`Remove ${game.name}`}
+                            className="absolute top-1.5 right-1.5 text-gray-300 hover:text-red-500 transition cursor-pointer"
+                          >
+                            <FaTimes size={11} />
+                          </button>
+                        </div>
+                      ))
+                    )}
                   </div>
                   <div className="flex justify-center">
-                    <button className="flex items-center gap-1 text-gray-500 text-sm mt-4 hover:text-gray-700 cursor-pointer">
-                      <PiPlusCircleBold size={16} /> Link New Account
+                    <button
+                      type="button"
+                      onClick={() => setShowAddGameModal(true)}
+                      className={`flex items-center gap-1 ${userShell.muted} text-sm mt-4 hover:text-white cursor-pointer`}
+                    >
+                      <PiPlusCircleBold size={16} /> Add preferred game
                     </button>
-                  </div>
-                </div>
-
-                {/* Social Connections */}
-                <div className="bg-white rounded-xl p-6">
-                  <h2 className="font-bold text-gray-900 text-base mb-4">
-                    Social Connections
-                  </h2>
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <FaDiscord size={20} className="text-indigo-500" />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">
-                            Discord
-                          </p>
-                          <p className="text-xs text-indigo-400">
-                            sujaruu#1000
-                          </p>
-                        </div>
-                      </div>
-                      <button className="border border-gray-300 text-gray-600 text-xs px-3 py-1.5 rounded-lg hover:bg-gray-100 cursor-pointer">
-                        Disconnect
-                      </button>
-                    </div>
-                    <div className="flex items-center justify-between border border-gray-200 rounded-lg px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <FaFacebook size={20} className="text-blue-500" />
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">
-                            Facebook
-                          </p>
-                          <p className="text-xs text-gray-400">Not connected</p>
-                        </div>
-                      </div>
-                      <button className="bg-blue-600 hover:bg-blue-700 text-white text-xs px-3 py-1.5 rounded-lg cursor-pointer transition">
-                        Connect Account
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </ResponsiveSidebarLayout>
+
+        {/* Add Preferred Game Modal */}
+        {showAddGameModal && (
+          <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-4">
+            <div className={userShell.modalMd}>
+              <div className="flex items-start justify-between mb-1">
+                <h2 className={userShell.h2Lg}>Add Game</h2>
+                <button
+                  type="button"
+                  onClick={() => setShowAddGameModal(false)}
+                  className="text-gray-400 hover:text-gray-700 cursor-pointer"
+                  aria-label="Close"
+                >
+                  <FaTimes size={16} />
+                </button>
+              </div>
+              <p className={`${userShell.bodySm} mb-5`}>
+                Select a game to add to your preferred list.
+              </p>
+
+              {selectableGames.length === 0 ? (
+                <p className={`${userShell.empty} text-center py-6`}>
+                  You have already added all available games.
+                </p>
+              ) : (
+                <ul className="space-y-2 max-h-[320px] overflow-y-auto">
+                  {selectableGames.map((game) => (
+                    <li key={game.id}>
+                      <button
+                        type="button"
+                        onClick={() => handleAddGame(game)}
+                        className={userShell.gamePick}
+                      >
+                        <div className={gameIconTileClass}>
+                          <img
+                            src={game.icon}
+                            alt={game.name}
+                            className="w-8 h-8 object-contain"
+                          />
+                        </div>
+                        <span className={`text-sm font-semibold ${userShell.strong}`}>
+                          {game.name}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <div className="flex justify-end mt-5">
+                <button
+                  type="button"
+                  onClick={() => setShowAddGameModal(false)}
+                  className={`px-4 py-2 text-sm ${userShell.muted} hover:text-white cursor-pointer`}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ✅ Crop Modal */}
         {showCropModal && rawImage && (
           <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
-            <div className="bg-white rounded-xl p-6 w-[500px] flex flex-col gap-4">
-              <h2 className="text-lg font-bold text-gray-900">
+            <div className={userShell.modalLg}>
+              <h2 className={userShell.h2Lg}>
                 Adjust Profile Photo
               </h2>
-              <p className="text-sm text-gray-500">
+              <p className={userShell.bodySm}>
                 Drag to reposition and resize your photo.
               </p>
               <div className="flex justify-center">
@@ -332,7 +578,7 @@ const ProfileTest = () => {
               <div className="flex justify-end gap-3 mt-2">
                 <button
                   onClick={handleCropCancel}
-                  className="border border-gray-300 text-gray-600 px-5 py-2 rounded-lg text-sm hover:bg-gray-100 cursor-pointer transition"
+                  className={userShell.btnGhost}
                 >
                   Cancel
                 </button>
@@ -349,6 +595,34 @@ const ProfileTest = () => {
 
         <Footer />
       </div>
+
+      <ConfirmModal
+        open={pendingDiscard}
+        title="Discard changes?"
+        message="Discard unsaved profile changes and reload from the server?"
+        confirmLabel="Discard"
+        danger
+        onConfirm={() => {
+          setPendingDiscard(false);
+          handleDiscard();
+        }}
+        onCancel={() => setPendingDiscard(false)}
+      />
+
+      <ConfirmModal
+        open={pendingRemoveGameId !== null}
+        title="Remove game?"
+        message="Remove this game from your preferred list? Save profile to apply."
+        confirmLabel="Remove"
+        danger
+        onConfirm={() => {
+          if (pendingRemoveGameId) {
+            handleRemoveGame(pendingRemoveGameId);
+          }
+          setPendingRemoveGameId(null);
+        }}
+        onCancel={() => setPendingRemoveGameId(null)}
+      />
     </>
   );
 };
